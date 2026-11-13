@@ -1,60 +1,54 @@
 <#
 .SYNOPSIS
-    Syncs My_Agent_Skills to Antigravity global configuration.
+    Syncs repository skills to Antigravity global configuration.
 .DESCRIPTION
-    Registers the repository's skills directory into ~/.gemini/config/skills.json
-    so all skills are automatically discovered by Antigravity across all projects.
+    Dynamically scans all skill folders in this repository and creates live
+    directory junctions in ~/.gemini/config/skills/ so Antigravity natively
+    discovers and loads them across all projects on any Windows machine.
 #>
 
 $ErrorActionPreference = "Stop"
 
-$RepoSkillsPath = (Resolve-Path "$PSScriptRoot\..\skills").Path -replace '\\', '/'
+$RepoSkillsPath = (Resolve-Path "$PSScriptRoot\..\skills").Path
 $GeminiConfigDir = "$HOME\.gemini\config"
-$SkillsConfigFile = "$GeminiConfigDir\skills.json"
+$GlobalSkillsDir = "$GeminiConfigDir\skills"
 
-Write-Host "Syncing My_Agent_Skills to Antigravity..." -ForegroundColor Cyan
-Write-Host "Skills Path: $RepoSkillsPath" -ForegroundColor Gray
+Write-Host "Syncing skills to Antigravity..." -ForegroundColor Cyan
+Write-Host "Source: $RepoSkillsPath" -ForegroundColor Gray
+Write-Host "Target: $GlobalSkillsDir" -ForegroundColor Gray
 
-# Ensure config directory exists
-if (-not (Test-Path $GeminiConfigDir)) {
-    New-Item -ItemType Directory -Path $GeminiConfigDir -Force | Out-Null
+# Ensure target directories exist
+if (-not (Test-Path $GlobalSkillsDir)) {
+    New-Item -ItemType Directory -Path $GlobalSkillsDir -Force | Out-Null
 }
 
-# Read existing skills.json or create initial structure
-$Config = @{ entries = @() }
+# Dynamically link every skill folder found in repository
+$Skills = Get-ChildItem -Path $RepoSkillsPath -Directory
 
-if (Test-Path $SkillsConfigFile) {
-    try {
-        $RawContent = Get-Content -Path $SkillsConfigFile -Raw
-        if (-not [string]::IsNullOrWhiteSpace($RawContent)) {
-            $ExistingJson = $RawContent | ConvertFrom-Json
-            if ($ExistingJson.entries) {
-                $Config.entries = @($ExistingJson.entries)
-            }
+if ($Skills.Count -eq 0) {
+    Write-Warning "No skill directories found in $RepoSkillsPath"
+    exit 0
+}
+
+Write-Host "`nCreating live junctions..." -ForegroundColor Yellow
+
+foreach ($Skill in $Skills) {
+    $SkillName = $Skill.Name
+    $SourcePath = $Skill.FullName
+    $DestPath = "$GlobalSkillsDir\$SkillName"
+
+    if (Test-Path $DestPath) {
+        $Item = Get-Item -Path $DestPath -Force
+        if ($Item.LinkType -eq "Junction" -and $Item.Target -eq $SourcePath) {
+            Write-Host "  ✅ $SkillName (already linked)" -ForegroundColor Green
+            continue
         }
-    } catch {
-        Write-Warning "Could not parse existing skills.json. Creating fresh entries list."
+        Remove-Item -Path $DestPath -Recurse -Force
     }
+
+    New-Item -ItemType Junction -Path $DestPath -Target $SourcePath | Out-Null
+    Write-Host "  🔗 Linked: $SkillName" -ForegroundColor Green
 }
 
-# Check if entry already registered
-$AlreadyRegistered = $false
-foreach ($entry in $Config.entries) {
-    if ($entry.path -eq $RepoSkillsPath) {
-        $AlreadyRegistered = $true
-        break
-    }
-}
-
-if (-not $AlreadyRegistered) {
-    $Config.entries += @{ path = $RepoSkillsPath }
-    $Config | ConvertTo-Json -Depth 5 | Set-Content -Path $SkillsConfigFile -Encoding UTF8
-    Write-Host "Registered skills path in: $SkillsConfigFile" -ForegroundColor Green
-} else {
-    Write-Host "Skills path is already registered in: $SkillsConfigFile" -ForegroundColor Yellow
-}
-
-Write-Host "`nSkills registered successfully! Antigravity will now load:" -ForegroundColor Green
-Get-ChildItem -Path "$PSScriptRoot\..\skills" -Directory | ForEach-Object {
-    Write-Host "  - $($_.Name)" -ForegroundColor Cyan
-}
+Write-Host "`n✅ Successfully synced $($Skills.Count) skills to Antigravity!" -ForegroundColor Green
+Write-Host "Note: Start a new chat in Antigravity to load new skills into the prompt." -ForegroundColor Cyan

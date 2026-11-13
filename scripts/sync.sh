@@ -1,42 +1,34 @@
 #!/usr/bin/env bash
-# Syncs My_Agent_Skills to Antigravity global configuration on Linux/macOS
+# Dynamically links all repository skills to ~/.gemini/config/skills on Linux/macOS
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILLS_DIR="$(cd "$SCRIPT_DIR/../skills" && pwd)"
-GEMINI_CONFIG_DIR="$HOME/.gemini/config"
-SKILLS_CONFIG_FILE="$GEMINI_CONFIG_DIR/skills.json"
+REPO_SKILLS_DIR="$(cd "$SCRIPT_DIR/../skills" && pwd)"
+GLOBAL_SKILLS_DIR="$HOME/.gemini/config/skills"
 
-echo "Syncing My_Agent_Skills to Antigravity..."
-echo "Skills Path: $SKILLS_DIR"
+echo "Syncing skills to Antigravity..."
+echo "Source: $REPO_SKILLS_DIR"
+echo "Target: $GLOBAL_SKILLS_DIR"
 
-mkdir -p "$GEMINI_CONFIG_DIR"
+mkdir -p "$GLOBAL_SKILLS_DIR"
 
-# Write or update skills.json using python or node if available, fallback to jq/cat
-python3 -c "
-import json, os
+count=0
+for skill_path in "$REPO_SKILLS_DIR"/*; do
+  if [ -d "$skill_path" ]; then
+    skill_name=$(basename "$skill_path")
+    dest_path="$GLOBAL_SKILLS_DIR/$skill_name"
+    
+    # Remove existing link or directory if present
+    rm -rf "$dest_path"
+    
+    # Create live symlink
+    ln -s "$skill_path" "$dest_path"
+    echo "  🔗 Linked: $skill_name"
+    count=$((count + 1))
+  fi
+done
 
-config_path = '$SKILLS_CONFIG_FILE'
-skills_path = '$SKILLS_DIR'
-
-data = {'entries': []}
-if os.path.exists(config_path):
-    try:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if 'entries' not in data:
-                data['entries'] = []
-    except Exception:
-        pass
-
-if not any(e.get('path') == skills_path for e in data['entries']):
-    data['entries'].append({'path': skills_path})
-    with open(config_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-    print('Registered skills path in:', config_path)
-else:
-    print('Skills path is already registered in:', config_path)
-"
-
-echo "Sync complete!"
+echo ""
+echo "✅ Successfully synced $count skills to Antigravity!"
+echo "Note: Start a new chat in Antigravity to load new skills into the prompt."
