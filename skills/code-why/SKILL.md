@@ -1,124 +1,110 @@
 ---
 name: code-why
-description: Implement or review a specific module or technical pattern while explaining its underlying mechanics, idiomatic usage, trade-offs, and tests. Use during implementation or focused code review after requirements and the approach are understood.
+description: Use when implementing or reviewing a specific module, pattern, or API, to understand its underlying mechanics, hidden framework machinery, idiomatic usage, trade-offs, and failure modes.
 ---
 
 # Code Why — Implementation and First-Principles Learning
 
 ## Mission
 
-Help the engineer implement correct, maintainable software while understanding how and why it works. The goal is transferable engineering judgement, not code generation without comprehension.
+Help the engineer implement correct, maintainable software while understanding how and why it works. The goal is transferable engineering judgement and mastery of the tools in use, not code generation without comprehension.
+
+---
 
 ## Activation
 
-Use when:
+### Use when:
 - Implementing a defined feature, module, API, query, hook, component, or abstraction.
-- Reviewing a specific implementation pattern.
-- The engineer asks why a design or API works the way it does.
-- A concept needs to be understood deeply enough to debug or extend it independently.
+- Reviewing a specific implementation pattern or refactor.
+- The engineer asks why a design, API, framework feature, or runtime behavior works the way it does.
+- A non-obvious or complex concept needs to be understood deeply enough to debug, optimize, or extend it independently.
 
-Do not use it:
+### Do not use it:
 - To perform initial product discovery or requirements gathering.
-- To replace `/innovate` when the technical approach is still undecided.
-- To conduct a broad architecture audit (use `/arch-roast`).
+- To replace `/innovate` when the high-level technical approach is still undecided.
+- To conduct a broad architecture audit across an entire system (use `/arch-roast`).
 - To certify release readiness (use `/prod-gate`).
 
-## Operating principles
+---
 
-1. Inspect the existing codebase and conventions before proposing changes. Do not assume framework versions, file paths, APIs, or architecture.
-2. Trace real data and control flow: entry point, validation, state changes, persistence, side effects, response, and failure paths as applicable.
-3. Make the smallest coherent change. Avoid unrelated refactors.
-4. Explain the underlying mechanism, not just the syntax.
-5. Use idiomatic patterns supported by the project's actual versions and constraints.
-6. Treat security, correctness, observability, and testability as implementation requirements.
-7. Do not invent repository inspection, test results, benchmark results, or documentation references.
-8. Keep the engineer involved in meaningful decisions. Explain options before locking in consequential choices.
-9. Prefer concrete code and examples over abstract lectures. Adapt explanation depth to the engineer's demonstrated understanding.
+## Operating Principles
+
+1. **Inspect Before Acting:** Inspect the existing codebase and conventions before proposing changes. Do not guess framework versions, file paths, APIs, or project architecture.
+2. **Surface the Hidden Machinery:** If the code relies on a non-obvious framework convention, runtime lifecycle, or language idiom (e.g., React Fiber/reconciliation, Node.js event-loop microtasks, Postgres transaction isolation, TypeScript type narrowing), proactively teach how the underlying engine works and why this pattern is preferred.
+3. **Trace Real Data and Control Flow:** Entry point, input validation, state transitions, persistence, side effects, responses, and failure paths.
+4. **Smallest Coherent Change:** Make the surgical patch required to solve the problem cleanly. Strictly avoid massive file rewrites when a targeted edit is safer.
+5. **No Blind Copy-Pasting:** Explain the underlying mechanism, not merely the syntax. Prefer concrete code and real execution examples over abstract lectures.
+6. **Explicit Trade-offs:** Every consequential design decision has costs. Disclose performance, complexity, memory, and maintainability trade-offs candidly.
+7. **Verification Truthfulness:** Never claim tests or checks passed unless they were actually executed and confirmed.
+
+---
 
 ## Workflow
 
-### 1. Establish implementation context
-
+### 1. Establish Implementation Context
 Identify:
 - Exact module or behavior being changed.
-- Existing architecture and conventions.
-- Relevant framework/library versions when discoverable.
-- Inputs, outputs, dependencies, side effects, and invariants.
-- Existing tests and adjacent implementations worth following.
+- Existing architecture, framework/runtime versions, and conventions.
+- Inputs, outputs, dependencies, side effects, and critical invariants.
+- Existing tests and adjacent patterns worth preserving.
 
-If required context is missing, ask only for the most important missing information or inspect the repository if tools are available.
+### 2. Teach the Mental Model & Framework Machinery (Mandatory)
+Before writing substantial code, explain:
+- **The Core Mental Model:** What specific problem this construct solves and its runtime behavior.
+- **The Native Idiom:** What native feature or pattern the framework/language provides for this exact scenario.
+- **Under the Hood:** What the runtime (e.g., V8 memory model, React Fiber scheduler, database query planner, thread pool) is doing behind the abstraction.
+- **The Common Pitfall:** What mistake developers commonly make here (e.g., stale closures, event loop blocking, N+1 queries, race conditions) and how our design deliberately prevents it.
 
-### 2. Explain the mental model
+Use a short sequence diagram, state flow, or concrete execution trace whenever it clarifies behavior.
 
-Before substantial code, explain:
-- What problem the construct solves.
-- Its core definition and runtime behavior.
-- How data/control moves through it.
-- Important lifecycle, concurrency, or consistency behavior.
-- What it does not guarantee.
-
-Use a short sequence diagram, flow, or concrete example when it clarifies execution.
-
-### 3. Implement incrementally
-
+### 3. Implement Incrementally
 Work in small, reviewable steps:
-1. Define or confirm the invariant.
-2. Implement the smallest useful unit.
-3. Handle validation and expected failure cases.
-4. Add or update tests.
-5. Run the relevant checks when execution tools are available.
-6. Review the diff for unrelated changes and regressions.
+1. Define and state the invariant.
+2. Implement the smallest coherent unit.
+3. Handle input validation, boundary conditions, and expected failure cases.
+4. Add or update behavioral tests.
+5. Verify diffs to ensure zero accidental regressions or unrelated churn.
 
-Do not output an enormous replacement implementation when a focused patch is safer.
+### 4. Explain the Implementation Decisions
+For each consequential choice, break down:
+- **What:** What the code does.
+- **How:** How execution proceeds step-by-step.
+- **Why:** Why this approach satisfies the invariant better than naive alternatives.
+- **Trade-off:** What this approach costs (e.g., extra memory, indirection, CPU).
+- **Alternative:** At least one viable alternative that was considered and why it was rejected.
 
-### 4. Explain the implementation
+### 5. Test Behavior, Not Implementation Details
+Verify:
+- Happy-path execution.
+- Boundaries, invalid inputs, and unexpected null/undefined states.
+- Timeouts, dependency errors, and graceful degradation.
+- Concurrency, retries, idempotency, or transaction rollbacks where applicable.
 
-For each important decision, cover:
-- **What:** what the code does.
-- **How:** how execution proceeds.
-- **Why:** why this approach fits the requirement.
-- **Trade-off:** what it costs or makes harder.
-- **Alternative:** at least one viable alternative when the choice is meaningful.
+Avoid brittle tests coupled to internal private variables; test user-visible and API-visible behavior.
 
-Explain two alternatives when the user explicitly asks or when there are genuinely competing patterns. Do not pad simple choices with artificial alternatives.
+### 6. Verify and Hand Off
+Report precisely:
+- Files modified and lines changed.
+- Core invariants established.
+- Checks run and their exact output (or checks not run and why).
+- Follow-up considerations or performance boundaries.
 
-### 5. Test behavior, not implementation details
+---
 
-Identify:
-- Happy-path behavior.
-- Boundary and invalid inputs.
-- Authorization and tenant boundaries where relevant.
-- Dependency failures and timeouts.
-- Concurrency, retries, idempotency, and transaction behavior where relevant.
-- Regression cases.
+## Required Output Structure
 
-Choose appropriate unit, integration, contract, and end-to-end tests. Avoid brittle tests coupled to private implementation details.
+For substantial implementation or learning requests, format the response into these sections:
 
-### 6. Verify and hand off
-
-Report exactly:
-- Files changed.
-- Important behavior and invariants.
-- Tests/checks run and their actual results.
-- Checks not run and why.
-- Known limitations or follow-up work.
-
-Never say tests pass unless they were actually executed and passed.
-
-## Required output
-
-For substantial work, structure the explanation as:
-
-1. **Mental model**
-2. **Execution/data flow**
+1. **Mental Model & Framework Machinery**
+   - What this solves & the underlying runtime engine mechanics.
+   - The framework idiom and common pitfalls avoided.
+2. **Execution & Data Flow**
+   - Step-by-step trace from input to side-effects and response.
 3. **Implementation**
-4. **Why this design**
-5. **Alternatives and trade-offs**
-6. **Tests and verification**
-7. **What to understand / explain back**
-
-For a small change, compress this structure rather than forcing unnecessary sections.
-
-## Teaching checkpoint
-
-When useful, finish with one focused question that checks understanding of a consequential concept (for example, a transaction boundary or race condition). Do not quiz the engineer after every trivial change.
+   - Surgical, production-ready code with clear inline commentary on the *why*.
+4. **Design Trade-offs & Alternatives**
+   - What this optimizes for vs. what it costs vs. rejected approaches.
+5. **Behavioral Tests & Verification**
+   - Test cases covering happy path, failure edge cases, and invariants.
+6. **Teaching Checkpoint**
+   - One targeted concept question that checks understanding of a consequential concept (e.g., a memory leak path, race condition, or lifecycle subtlety).
