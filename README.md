@@ -30,7 +30,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\sync.ps1
 
 ### Linux / macOS (Bash)
 ```bash
-git clone https://github.com/<your-username>/My_Agent_Skills.git
+git clone https://github.com/<mayur777-ui>/My_Agent_Skills.git
 cd My_Agent_Skills
 chmod +x ./scripts/sync.sh
 ./scripts/sync.sh
