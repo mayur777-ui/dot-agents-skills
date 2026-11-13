@@ -10,7 +10,7 @@ This repository allows you to sync your custom skills, workflows, and guidelines
 
 | Skill | Trigger / When to Use | Description |
 | :--- | :--- | :--- |
-| **`ui-ux-pro-max-skill`** | Design UI, landing pages, styles, color palettes | 161 design reasoning rules, 67 UI styles, font pairings, and design system generation. |
+| **`ui-ux`** | `/ui-ux`, design interfaces, landing pages, styles, palettes | Professional UI/UX engineering, visual archetypes, font pairings, WCAG AA compliance, and design tokens. |
 | **`arch-roast`** | `/arch-roast`, review architecture, diff check | Evidence-based engineering review for correctness, reliability, performance, and failure modes. |
 | **`code-why`** | `/code-why`, explain logic, document decisions | Explains the underlying rationale, trade-offs, and invariants behind code choices. |
 | **`innovate`** | Brainstorm alternatives, redesign, 10x ideas | Proposes high-leverage technical and product alternatives with risk/benefit analysis. |
