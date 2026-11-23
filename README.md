@@ -16,6 +16,8 @@ This repository allows you to sync your custom skills, workflows, and guidelines
 | **`innovate`** | Brainstorm alternatives, redesign, 10x ideas | Proposes high-leverage technical and product alternatives with risk/benefit analysis. |
 | **`prod-gate`** | `/prod-gate`, pre-release checklist, launch prep | Pre-deployment gate checking reliability, monitoring, security, rollback, and data integrity. |
 | **`skill-evolve`** | Retrospective, review learning, refine skills | Turns post-mortems and debugging sessions into durable, updated skill improvements. |
+| **`debug-error`** | `/debug-error`, investigate failures, regressions, and incidents | Reproduces failures, tests hypotheses, traces root causes, and verifies minimal fixes. |
+| **`pro-implementation`** | `/pro-implementation`, implement features or refactors | Delivers scoped, maintainable changes with security, failure handling, and test verification. |
 
 ---
 
