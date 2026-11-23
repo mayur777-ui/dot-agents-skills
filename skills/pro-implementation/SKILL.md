@@ -12,16 +12,18 @@ Turn agreed requirements into a correct, secure, reliable, testable implementati
 ## Activation
 
 Use when:
-- The user asks to build or modify a concrete feature, module, endpoint, UI flow, integration, or refactor.
+- The primary intent is to deliver a concrete feature, module, endpoint, UI flow, integration, or refactor, rather than a teaching-first walkthrough.
 - Acceptance criteria are available or can be reasonably inferred and explicitly stated.
 - There is existing code to extend, or the user has selected the stack for new work.
 
 Do not use when:
-- A current bug needs root-cause investigation first (use `/debug-error`).
+- A current bug needs root-cause investigation or a directly causal fix (use `/debug-error` through diagnosis, minimal repair, and regression verification).
 - Requirements or product behavior have not been decided; clarify only the blocking decision.
 - The task is primarily evaluating architecture alternatives (use `/innovate`).
-- The user only wants an explanation (use `/code-why`).
+- The primary intent is first-principles learning, including implementation explicitly requested as a teaching exercise (use `/code-why` Mode A).
 - A separate post-implementation review or release gate is needed (use `/arch-roast` or `/prod-gate`).
+
+**Routing and handoff:** `/pro-implementation` owns normal production feature delivery, even when a concise rationale is requested. Explicit teaching-first implementations belong to `/code-why` Mode A. When investigation reveals a narrowly scoped fix, `/debug-error` keeps ownership through the fix and regression tests; switch here only for a separate, agreed feature or broader refactor. Do not bounce between skills for one causal fix.
 
 ## Operating Principles
 
