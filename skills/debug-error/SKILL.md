@@ -17,10 +17,12 @@ Use when:
 - A previously attempted fix did not work and the cause remains uncertain.
 
 Do not use when:
-- Building a new feature without a failure (use `/pro-implementation`).
+- Building a new feature without a failure, or a distinct feature/refactor beyond the causal repair (use `/pro-implementation`).
 - Comparing architecture alternatives before implementation (use `/innovate`).
 - Conducting a broad review without a specific failure (use `/arch-roast`).
 - Certifying release readiness (use `/prod-gate`).
+
+**Ownership and handoff:** Keep `/debug-error` active for diagnosis, the smallest causal code change, and regression verification—even when the repair includes a small refactor. Hand off to `/pro-implementation` only for separately agreed feature development or a broader refactor. Do not switch merely because the bug fix requires writing code.
 
 ## Operating Principles
 
