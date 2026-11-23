@@ -1,6 +1,6 @@
 ---
 name: code-why
-description: Use when implementing a module to understand its underlying mechanics, or when asking to learn/deep-dive into an unfamiliar framework primitive, language keyword, or technical capability (e.g., useCallback, std::atomic, IIFE, Proxy).
+description: Teach first-principles mechanics behind code, including explicitly learning-focused implementations, or explain unfamiliar framework primitives and language capabilities. Routine feature delivery belongs to pro-implementation.
 ---
 
 # Code Why — Technical Capability, Primitives, and First-Principles Learning
@@ -18,19 +18,23 @@ The skill operates in one of two modes based on your intent:
 ```mermaid
 flowchart TD
     Prompt["Your Request with /code-why"] --> ModeDetect{"Are you writing project code\nor asking about a primitive?"}
-    ModeDetect -- "Writing / Refactoring Code" --> ModeA["Mode A: Feature Implementation\n(Surgical patch + runtime flow + trade-offs)"]
+    ModeDetect -- "Implementation with teaching intent" --> ModeA["Mode A: Implementation Teaching\n(Surgical patch + runtime flow + trade-offs)"]
     ModeDetect -- "Asking About a Feature / Tool\n(useCallback, atomic, IIFE, Proxy, etc.)" --> ModeB["Mode B: Primitive & Syntax Deep-Dive\n(Capability + Syntax Anatomy + Before/After + When to Avoid)"]
 ```
 
-### When to use Mode A (Feature Implementation):
-- Implementing a defined feature, module, query, hook, or abstraction.
-- Reviewing a tricky refactor where invariants must be protected.
+### When to use Mode A (Implementation Teaching):
+- The user explicitly invokes `/code-why` for an implementation or requests a first-principles walkthrough while building.
+- Walking through a defined module, query, hook, or refactor for a teaching-first explanation and small, coherent code example.
+
+**Routing precedence:** For routine production feature delivery and refactoring, use `/pro-implementation` even if a brief rationale is requested. Explicit teaching-first implementations belong to `/code-why` Mode A.
 
 ### When to use Mode B (Primitive & Syntax Deep-Dive):
 - Asking about a language keyword, hook, concurrency primitive, or design pattern (`useCallback`, `std::atomic`, `IIFE`, `WeakMap`, `Proxy`, `generator`, `Mutex`, etc.).
 - Needing to understand *why* a language feature exists, its exact syntax grammar, and when it is an anti-pattern.
 
 ### Do not use it:
+- For routine end-to-end feature delivery without explicit teaching intent (use `/pro-implementation`).
+- For failure investigation and causal fixes (use `/debug-error`); explain the findings afterward if asked.
 - For initial product discovery or requirement brainstorming (use `/brainstorming`).
 - For wide-scope architecture comparison across multiple technologies (use `/innovate`).
 - For full repository security/release audits (use `/arch-roast` or `/prod-gate`).
@@ -48,7 +52,7 @@ flowchart TD
 
 ---
 
-## Mode A Workflow: Feature Implementation
+## Mode A Workflow: Implementation Teaching
 
 When writing or refactoring project code:
 
